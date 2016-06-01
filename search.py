@@ -88,61 +88,81 @@ def depthFirstSearch(problem):
 	"""
 	"*** YOUR CODE HERE ***"
 	#   Initialize Stack, format like getSuccessors: state, action list, cost
-	SearchStack = util.Stack()
-	VisitedSet = set()
+	frontier = util.Stack()
+	explored = set()
 	#   Push StartState in Stack
-	SearchStack.push((problem.getStartState(),[],0))	
+	frontier.push((problem.getStartState(),[]))	
 
 	#   Start Seaching below
-	while not SearchStack.isEmpty():
+	while not frontier.isEmpty():
 		#	Pop the next node to search
-		PacmanState, PacmanAction, PacmanCost  = SearchStack.pop()
+		PacmanState, PacmanAction = frontier.pop()
 		#	Skip the node that visited
-		if PacmanState in VisitedSet:
+		if PacmanState in explored:
 			continue
 		#	Stop searching if goal path is reached
 		if problem.isGoalState(PacmanState):
-			break
+			#	Return list of pacman move direction to goal
+			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		VisitedSet.add(PacmanState)
+		explored.add(PacmanState)
 		#	Push all possible node in next search into stack
 		for state, direction, cost in problem.getSuccessors(PacmanState):
-			SearchStack.push((state, PacmanAction+[direction], PacmanCost))
-
-	return PacmanAction	#	Return list of pacman move direction to goal
-
+			frontier.push((state, PacmanAction+[direction]))
+	print "Search Fail"
 
 def breadthFirstSearch(problem):
 	"""Search the shallowest nodes in the search tree first."""
 	"*** YOUR CODE HERE ***"
 	#   Initialize Queue, format like getSuccessors: state, action list, cost
-	SearchQueue = util.Queue()
-	VisitedSet = set()
+	frontier = util.Queue()
+	explored = set()
 	#   Push StartState in Queue
-	SearchQueue.push((problem.getStartState(),[],0))
+	frontier.push((problem.getStartState(),[]))
 	
 	#   Start Seaching below
-	while not SearchQueue.isEmpty():
+	while not frontier.isEmpty():
 		#	Pop the next node to search
-		PacmanState, PacmanAction, PacmanCost  = SearchQueue.pop()
+		PacmanState, PacmanAction  = frontier.pop()
 		#	Skip the node that visited
-		if PacmanState in VisitedSet:
+		if PacmanState in explored:
 			continue
 		#	Stop searching if goal path is reached
 		if problem.isGoalState(PacmanState):
-			break
+			#	Return pacman's direction of move to goal in list
+			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		VisitedSet.add(PacmanState)
+		explored.add(PacmanState)
 		#	Push all possible node in next search into stack
 		for state, direction, cost in problem.getSuccessors(PacmanState):
-			SearchQueue.push((state, PacmanAction+[direction], PacmanCost))
-			
-	return PacmanAction	#	Return pacman's direction of move to goal in list
+			frontier.push((state, PacmanAction+[direction]))
+	print "Search Fail"
 
 def uniformCostSearch(problem):
 	"""Search the node of least total cost first."""
-	"*** YOUR CODE HERE ***"
-	util.raiseNotDefined()
+	"*** YOUR CODE HERE ***"	
+	frontier = util.PriorityQueue()
+	explored = set()
+	#	(PacmanState, PacmanAction, PacmanCost)
+	frontier.push((problem.getStartState(), []), 0)
+
+	while not frontier.isEmpty():
+		#	Pop the lowest-code node to search
+		PacmanState, PacmanAction = frontier.pop()
+		#	Skip the node that visited
+		if PacmanState in explored:
+			continue
+		#	Stop searching is goal is found
+		if problem.isGoalState(PacmanState):
+			#	Return pacman's direction of move to goal in list
+			return PacmanAction
+		#	Renew the visited node by adding node process searching
+		explored.add(PacmanState)
+
+		for state, direction, cost in problem.getSuccessors(PacmanState):
+			#	Push successors in step cost in priority, lower search first
+			frontier.push((state, PacmanAction+[direction]), problem.getCostOfActions(PacmanAction+[direction]))
+	print "Search Fail"
 
 def nullHeuristic(state, problem=None):
 	"""
@@ -154,8 +174,29 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
 	"""Search the node that has the lowest combined cost and heuristic first."""
 	"*** YOUR CODE HERE ***"
-	util.raiseNotDefined()
+	frontier = util.PriorityQueue()
+	explored = set()
+	#	(PacmanState, PacmanAction, f(x) = h(x))
+	frontier.push((problem.getStartState(), []), heuristic(problem.getStartState(), problem))
 
+	while not frontier.isEmpty():
+		#	Pop the lowest-code node to search
+		PacmanState, PacmanAction = frontier.pop()
+		#	Skip the node that visited
+		if PacmanState in explored:
+			continue
+		#	Stop searching is goal is found
+		if problem.isGoalState(PacmanState):
+			#	Return pacman's direction of move to goal in list
+			return PacmanAction
+		#	Renew the visited node by adding node process searching
+		explored.add(PacmanState)
+
+		for state, direction, cost in problem.getSuccessors(PacmanState):
+			#	Push successors in step cost in priority, lower search first
+			#	((node position, action list), f(x) = g(x) + h(x))
+			frontier.push((state, PacmanAction+[direction]), problem.getCostOfActions(PacmanAction+[direction])+heuristic(state, problem))
+	print "Search Fail"
 
 # Abbreviations
 bfs = breadthFirstSearch
