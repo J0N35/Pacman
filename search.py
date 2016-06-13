@@ -89,7 +89,7 @@ def depthFirstSearch(problem):
 	"*** YOUR CODE HERE ***"
 	#   Initialize Stack, format like getSuccessors: state, action list, cost
 	frontier = util.Stack()
-	explored = set()
+	explored = []
 	#   Push StartState in Stack
 	frontier.push((problem.getStartState(),[]))	
 
@@ -105,7 +105,7 @@ def depthFirstSearch(problem):
 			#	Return list of pacman move direction to goal
 			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		explored.add(PacmanState)
+		explored.append(PacmanState)
 		#	Push all possible node in next search into stack
 		for state, direction, cost in problem.getSuccessors(PacmanState):
 			frontier.push((state, PacmanAction+[direction]))
@@ -116,7 +116,7 @@ def breadthFirstSearch(problem):
 	"*** YOUR CODE HERE ***"
 	#   Initialize Queue, format like getSuccessors: state, action list, cost
 	frontier = util.Queue()
-	explored = set()
+	explored = []
 	#   Push StartState in Queue
 	frontier.push((problem.getStartState(),[]))
 	
@@ -132,7 +132,7 @@ def breadthFirstSearch(problem):
 			#	Return pacman's direction of move to goal in list
 			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		explored.add(PacmanState)
+		explored.append(PacmanState)
 		#	Push all possible node in next search into stack
 		for state, direction, cost in problem.getSuccessors(PacmanState):
 			frontier.push((state, PacmanAction+[direction]))
@@ -142,7 +142,7 @@ def uniformCostSearch(problem):
 	"""Search the node of least total cost first."""
 	"*** YOUR CODE HERE ***"	
 	frontier = util.PriorityQueue()
-	explored = set()
+	explored = []
 	#	(PacmanState, PacmanAction, PacmanCost)
 	frontier.push((problem.getStartState(), []), 0)
 
@@ -157,7 +157,7 @@ def uniformCostSearch(problem):
 			#	Return pacman's direction of move to goal in list
 			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		explored.add(PacmanState)
+		explored.append(PacmanState)
 
 		for state, direction, cost in problem.getSuccessors(PacmanState):
 			#	Push successors in step cost in priority, lower search first
@@ -173,9 +173,8 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
 	"""Search the node that has the lowest combined cost and heuristic first."""
-	"*** YOUR CODE HERE ***"
 	frontier = util.PriorityQueue()
-	explored = set()
+	explored = []
 	#	(PacmanState, PacmanAction, f(x) = h(x))
 	frontier.push((problem.getStartState(), []), heuristic(problem.getStartState(), problem))
 
@@ -190,7 +189,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 			#	Return pacman's direction of move to goal in list
 			return PacmanAction
 		#	Renew the visited node by adding node process searching
-		explored.add(PacmanState)
+		explored.append(PacmanState)
 
 		for state, direction, cost in problem.getSuccessors(PacmanState):
 			#	Push successors in step cost in priority, lower search first
