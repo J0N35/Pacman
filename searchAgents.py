@@ -370,11 +370,25 @@ def cornersHeuristic(state, problem):
     shortest path from the state to a goal of the problem; i.e.  it should be
     admissible (as well as consistent).
     """
-    corners = problem.corners # These are the corner coordinates
+    corners = list(problem.corners) # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
-    "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    node = state[0]
+    unexploredCorners = []
+    exploredCorners = state[1]    
+    heuristic = 0
+
+    for corner in corners:
+        if not corner in exploredCorners:
+            unexploredCorners.append(corner)
+
+    currentposition = node
+    while len(unexploredCorners) > 0:
+        distance, corner = min([(util.manhattanDistance(currentposition, corner), corner) for corner in unexploredCorners])
+        heuristic += distance
+        currentposition = corner
+        unexploredCorners.remove(corner)
+    return heuristic # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -466,9 +480,49 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+    if problem.isGoalState(state):
+        return 0
+
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+    gs = problem.startingGameState
+    heuristic = 0
+
+    # manhattanDistance only 2/4
+    # if foodList:
+    #     heuristic = min([util.manhattanDistance(position, location) for location in foodList])
+    # return heuristic
+
+    # manhattanDistance only 3/4
+    # if foodList:
+    #     heuristic = max([util.manhattanDistance(position, location) for location in foodList])
+    # return heuristic
+
+    # mazeDistance only 5/4 ref. from class fb group
+    # if foodList:
+    #     heuristic = max([mazeDistance(position, location, gs) for location in foodList])
+    # return heuristic
+
+    # mazeDistance + foodcount
+    distance = 0
+    if foodList:
+        distance, dot = max([(mazeDistance(position, location, gs), location) for location in foodList])
+
+    dim = position[0] - dot[0]
+
+    foodCount = 0
+    for food in foodList:
+        if dim > 0:
+            if (position[0] - food[0]) < 0:
+                foodCount += 1
+        elif dim < 0:
+            if (position[0] - food[0]) > 0:
+                foodCount += 1
+        else:
+            if (position[0] - food[0]) != 0:
+                foodCount += 1
+    
+    return abs(distance) + foodCount
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -499,7 +553,7 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -533,9 +587,9 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
+        
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return state in self.food.asList()
 
 def mazeDistance(point1, point2, gameState):
     """
